@@ -5,10 +5,11 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import FileSystemStorage
 from .models import Aircraft
 
-fs = FileSystemStorage(location='tmp/')
+# fs = FileSystemStorage(location='tmp/')
 
 
 def index(request):
+    """
     if request.method == 'POST':
         file = request.FILES.get('dataFile')
         content = file.read()
@@ -48,3 +49,5 @@ def index(request):
         return HttpResponse("<h5>data is uploaded</h5>")
 
     return render(request, 'aviation/index.html', {})
+    """
+    return HttpResponse("<h5>Welcome to our Aviation Craft metrics</h5>")
