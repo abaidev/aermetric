@@ -47,4 +47,4 @@ def index(request):
         fs.delete(tmp_file)
         return HttpResponse("<h5>data is uploaded</h5>")
 
-    return render(request, 'index.html', {})
+    return render(request, 'aviation/index.html', {})
