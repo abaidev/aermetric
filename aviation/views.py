@@ -1,5 +1,6 @@
 import csv
 from django.shortcuts import render
+from django.http import HttpResponse
 from django.core.files.base import ContentFile
 from django.core.files.storage import FileSystemStorage
 from .models import Aircraft
@@ -44,5 +45,6 @@ def index(request):
 
         Aircraft.objects.bulk_create(product_list)
         fs.delete(tmp_file)
+        return HttpResponse("<h5>data is uploaded</h5>")
 
     return render(request, 'index.html', {})
