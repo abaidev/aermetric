@@ -34,12 +34,13 @@ def aircraft_stats(request):
         qs = Aircraft.objects.filter(aircraft=aircraft)
         res_data.append(data_form(qs, aircraft=aircraft))
 
-    for status, _ in CHOICES['status']:
-        qs = Aircraft.objects.filter(status=status)
-        res_data.append(data_form(qs, status=status))
+    if aircraft_models:
+        for status, _ in CHOICES['status']:
+            qs = Aircraft.objects.filter(status=status)
+            res_data.append(data_form(qs, status=status))
 
-    for ac_type, _ in CHOICES['type']:
-        qs = Aircraft.objects.filter(type=ac_type)
-        res_data.append(data_form(qs, type=ac_type))
+        for ac_type, _ in CHOICES['type']:
+            qs = Aircraft.objects.filter(type=ac_type)
+            res_data.append(data_form(qs, type=ac_type))
 
     return Response(res_data)
