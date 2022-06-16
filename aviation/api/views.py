@@ -16,15 +16,15 @@ def aircraft_stats(request):
             "type": type,
             "info_count": sum([item.info_count for item in qs]),
             "errors_count": sum([item.errors_count for item in qs]),
-            "pre_legend": sum(list(filter(lambda item: item.type == 'pre_legend', qs))),
-            "warning": sum(list(filter(lambda item: item.type == 'warning', qs))),
-            "paired_b": sum(list(filter(lambda item: item.type == 'paired_b', qs))),
-            "legend": sum(list(filter(lambda item: item.type == 'legend', qs))),
-            "lower_b": sum(list(filter(lambda item: item.type == 'lower_b', qs))),
-            "repeat_legend": sum(list(filter(lambda item: item.type == 'repeat_legend', qs))),
-            "upper_a": sum(list(filter(lambda item: item.type == 'upper_a', qs))),
-            "lower_a": sum(list(filter(lambda item: item.type == 'lower_a', qs))),
-            "paired_a": sum(list(filter(lambda item: item.type == 'paired_a', qs))),
+            "pre_legend": len(list(filter(lambda item: item.type == 'PreLegend', qs))),
+            "warning": len(list(filter(lambda item: item.type == 'Warning', qs))),
+            "paired_b": len(list(filter(lambda item: item.type == 'Paired B', qs))),
+            "legend": len(list(filter(lambda item: item.type == 'Legend', qs))),
+            "lower_b": len(list(filter(lambda item: item.type == 'Lower B', qs))),
+            "repeat_legend": len(list(filter(lambda item: item.type == 'Repeat Legend', qs))),
+            "upper_a": len(list(filter(lambda item: item.type == 'Upper A', qs))),
+            "lower_a": len(list(filter(lambda item: item.type == 'Lower A', qs))),
+            "paired_a": len(list(filter(lambda item: item.type == 'Paired A', qs))),
         }
 
     res_data = []
@@ -33,13 +33,14 @@ def aircraft_stats(request):
     if aircraft_models:
         for aircraft in aircraft_models:
             qs = Aircraft.objects.filter(aircraft=aircraft)
-            res_data.append(data_form(qs.iterator(), aircraft=aircraft))  # or list(qs)
+            res_data.append(data_form(list(qs), aircraft=aircraft))
+
         for status, _ in CHOICES['status']:
             qs = Aircraft.objects.filter(status=status)
-            res_data.append(data_form(qs.iterator(), status=status))
+            res_data.append(data_form(list(qs), status=status))
 
         for ac_type, _ in CHOICES['type']:
             qs = Aircraft.objects.filter(type=ac_type)
-            res_data.append(data_form(qs.iterator(), type=ac_type))
+            res_data.append(data_form(list(qs), type=ac_type))
 
     return Response(res_data)
