@@ -1,8 +1,11 @@
 from django.apps import apps
-from django.db.models import Count, Sum, Q
+from django.db.models import (
+    ExpressionWrapper,
+    Q, F, CharField,
+    Count, Sum, Value, NullBooleanField
+)
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from aviation.models import CHOICES
 from aviation.decorators import query_debugger
 
 Aircraft = apps.get_model("aviation", "Aircraft")
@@ -11,41 +14,69 @@ Aircraft = apps.get_model("aviation", "Aircraft")
 @query_debugger
 @api_view(http_method_names=['GET'])
 def aircraft_stats(request):
-    def data_form(qs, aircraft=None, status=None, type=None):
-        qd = qs.aggregate(
-            pre_legend=Count('type', filter=Q(type='PreLegend')),
-            warning=Count('type', filter=Q(type='Warning')),
-            paired_b=Count('type', filter=Q(type='Paired B')),
-            legend=Count('type', filter=Q(type='Legend')),
-            lower_b=Count('type', filter=Q(type='Lower B')),
-            repeat_legend=Count('type', filter=Q(type='Repeat Legend')),
-            upper_a=Count('type', filter=Q(type='Upper A')),
-            lower_a=Count('type', filter=Q(type='Lower A')),
-            paired_a=Count('type', filter=Q(type='Paired A')),
-            info_count=Sum('info_count'),
-            errors_count=Sum('errors_count'),
-        )
-        qd.update({
-            "aircraft": aircraft,
-            "status": status,
-            "type": type,
-        })
-        return qd
-
     res_data = []
-    aircraft_models = Aircraft.objects.values_list('aircraft', flat=True).distinct()
 
-    if aircraft_models:
-        for aircraft in aircraft_models:
-            qs = Aircraft.objects.filter(aircraft=aircraft)
-            res_data.append(data_form(qs, aircraft=aircraft))
+    # AIRCRAFTS
+    a = Aircraft.objects.annotate(
+        crafts=ExpressionWrapper(Q(aircraft=F('aircraft')), output_field=CharField(), )).values('aircraft').annotate(
+        pre_legend=Count('type', filter=Q(type='PreLegend')),
+        warning=Count('type', filter=Q(type='Warning')),
+        paired_b=Count('type', filter=Q(type='Paired B')),
+        legend=Count('type', filter=Q(type='Legend')),
+        lower_b=Count('type', filter=Q(type='Lower B')),
+        repeat_legend=Count('type', filter=Q(type='Repeat Legend')),
+        upper_a=Count('type', filter=Q(type='Upper A')),
+        lower_a=Count('type', filter=Q(type='Lower A')),
+        paired_a=Count('type', filter=Q(type='Paired A')),
+        info_count=Sum('info_count'),
+        errors_count=Sum('errors_count'),
+        status=Value(None, output_field=NullBooleanField()),
+        type=Value(None, output_field=NullBooleanField()),
+    ).values('aircraft', 'pre_legend', 'paired_b', 'legend', 'lower_b', 'repeat_legend', 'upper_a', 'lower_a',
+             'paired_a', 'info_count', 'errors_count', 'status', 'type')
 
-        for status, _ in CHOICES['status']:
-            qs = Aircraft.objects.filter(status=status)
-            res_data.append(data_form(qs, status=status))
+    res_data.append(a)
 
-        for ac_type, _ in CHOICES['type']:
-            qs = Aircraft.objects.filter(type=ac_type)
-            res_data.append(data_form(qs, type=ac_type))
+    # STATUSES
+    s = Aircraft.objects.annotate(
+        crafts=ExpressionWrapper(Q(aircraft=F('status')), output_field=CharField(), )).values('status').annotate(
+        pre_legend=Count('type', filter=Q(type='PreLegend')),
+        warning=Count('type', filter=Q(type='Warning')),
+        paired_b=Count('type', filter=Q(type='Paired B')),
+        legend=Count('type', filter=Q(type='Legend')),
+        lower_b=Count('type', filter=Q(type='Lower B')),
+        repeat_legend=Count('type', filter=Q(type='Repeat Legend')),
+        upper_a=Count('type', filter=Q(type='Upper A')),
+        lower_a=Count('type', filter=Q(type='Lower A')),
+        paired_a=Count('type', filter=Q(type='Paired A')),
+        info_count=Sum('info_count'),
+        errors_count=Sum('errors_count'),
+        aircraft=Value(None, output_field=NullBooleanField()),
+        type=Value(None, output_field=NullBooleanField()),
+    ).values('aircraft', 'pre_legend', 'paired_b', 'legend', 'lower_b', 'repeat_legend', 'upper_a', 'lower_a',
+             'paired_a', 'info_count', 'errors_count', 'status', 'type')
+
+    res_data.append(s)
+
+    ## TYPES
+    t = Aircraft.objects.annotate(
+        crafts=ExpressionWrapper(Q(aircraft=F('type')), output_field=CharField(), )).values('type').annotate(
+        pre_legend=Count('type', filter=Q(type='PreLegend')),
+        warning=Count('type', filter=Q(type='Warning')),
+        paired_b=Count('type', filter=Q(type='Paired B')),
+        legend=Count('type', filter=Q(type='Legend')),
+        lower_b=Count('type', filter=Q(type='Lower B')),
+        repeat_legend=Count('type', filter=Q(type='Repeat Legend')),
+        upper_a=Count('type', filter=Q(type='Upper A')),
+        lower_a=Count('type', filter=Q(type='Lower A')),
+        paired_a=Count('type', filter=Q(type='Paired A')),
+        info_count=Sum('info_count'),
+        errors_count=Sum('errors_count'),
+        aircraft=Value(None, output_field=NullBooleanField()),
+        status=Value(None, output_field=NullBooleanField()),
+    ).values('aircraft', 'pre_legend', 'paired_b', 'legend', 'lower_b', 'repeat_legend', 'upper_a', 'lower_a',
+             'paired_a', 'info_count', 'errors_count', 'status', 'type')
+
+    res_data.append(t)
 
     return Response(res_data)
