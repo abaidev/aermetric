@@ -39,7 +39,7 @@ def aircraft_stats(request):
 
     # STATUSES
     s = Aircraft.objects.annotate(
-        crafts=ExpressionWrapper(Q(aircraft=F('status')), output_field=CharField(), )).values('status').annotate(
+        crafts=ExpressionWrapper(Q(status=F('status')), output_field=CharField(), )).values('status').annotate(
         pre_legend=Count('type', filter=Q(type='PreLegend')),
         warning=Count('type', filter=Q(type='Warning')),
         paired_b=Count('type', filter=Q(type='Paired B')),
@@ -60,7 +60,7 @@ def aircraft_stats(request):
 
     ## TYPES
     t = Aircraft.objects.annotate(
-        crafts=ExpressionWrapper(Q(aircraft=F('type')), output_field=CharField(), )).values('type').annotate(
+        crafts=ExpressionWrapper(Q(type=F('type')), output_field=CharField(), )).values('type').annotate(
         pre_legend=Count('type', filter=Q(type='PreLegend')),
         warning=Count('type', filter=Q(type='Warning')),
         paired_b=Count('type', filter=Q(type='Paired B')),
