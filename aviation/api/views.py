@@ -17,8 +17,7 @@ def aircraft_stats(request):
     res_data = []
 
     # AIRCRAFTS
-    a = Aircraft.objects.annotate(
-        crafts=ExpressionWrapper(Q(aircraft=F('aircraft')), output_field=CharField(), )).values('aircraft').annotate(
+    a = Aircraft.objects.values('aircraft').distinct().annotate(
         pre_legend=Count('type', filter=Q(type='PreLegend')),
         warning=Count('type', filter=Q(type='Warning')),
         paired_b=Count('type', filter=Q(type='Paired B')),
@@ -32,14 +31,12 @@ def aircraft_stats(request):
         errors_count=Sum('errors_count'),
         status=Value(None, output_field=NullBooleanField()),
         type=Value(None, output_field=NullBooleanField()),
-    ).values('aircraft', 'pre_legend', 'paired_b', 'legend', 'lower_b', 'repeat_legend', 'upper_a', 'lower_a',
-             'paired_a', 'info_count', 'errors_count', 'status', 'type')
+    )
 
     res_data.append(a)
 
     # STATUSES
-    s = Aircraft.objects.annotate(
-        crafts=ExpressionWrapper(Q(status=F('status')), output_field=CharField(), )).values('status').annotate(
+    s = Aircraft.objects.values('status').annotate(
         pre_legend=Count('type', filter=Q(type='PreLegend')),
         warning=Count('type', filter=Q(type='Warning')),
         paired_b=Count('type', filter=Q(type='Paired B')),
@@ -53,14 +50,12 @@ def aircraft_stats(request):
         errors_count=Sum('errors_count'),
         aircraft=Value(None, output_field=NullBooleanField()),
         type=Value(None, output_field=NullBooleanField()),
-    ).values('aircraft', 'pre_legend', 'paired_b', 'legend', 'lower_b', 'repeat_legend', 'upper_a', 'lower_a',
-             'paired_a', 'info_count', 'errors_count', 'status', 'type')
+    )
 
     res_data.append(s)
 
-    ## TYPES
-    t = Aircraft.objects.annotate(
-        crafts=ExpressionWrapper(Q(type=F('type')), output_field=CharField(), )).values('type').annotate(
+    # TYPES
+    t = Aircraft.objects.values('type').annotate(
         pre_legend=Count('type', filter=Q(type='PreLegend')),
         warning=Count('type', filter=Q(type='Warning')),
         paired_b=Count('type', filter=Q(type='Paired B')),
@@ -74,8 +69,7 @@ def aircraft_stats(request):
         errors_count=Sum('errors_count'),
         aircraft=Value(None, output_field=NullBooleanField()),
         status=Value(None, output_field=NullBooleanField()),
-    ).values('aircraft', 'pre_legend', 'paired_b', 'legend', 'lower_b', 'repeat_legend', 'upper_a', 'lower_a',
-             'paired_a', 'info_count', 'errors_count', 'status', 'type')
+    )
 
     res_data.append(t)
 
